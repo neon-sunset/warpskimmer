@@ -1,6 +1,3 @@
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-
 namespace Feetlicker;
 
 public record Message(
@@ -11,6 +8,7 @@ public record Message(
     U8String? Params)
 {
     // TODO: Stateful line reader/parser
+    // Ideally up to 333ns per line but that would probably be too hard
     public static Message Parse(ReadOnlySpan<byte> line)
     {
         var source = line;

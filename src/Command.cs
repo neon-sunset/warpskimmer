@@ -1,16 +1,23 @@
-﻿namespace Feetlicker;
+﻿using System.Collections.Frozen;
+using System.Runtime.CompilerServices;
+using System.Text;
+
+namespace Feetlicker;
 
 public readonly record struct Command(
     CommandKey Key,
     U8String Value)
 {
+    private static ReadOnlySpan<byte> PRIVMSG => "PRIVMSG"u8;
+    private static ReadOnlySpan<byte> CLEARCHAT => "CLEARCHAT"u8;
+
     public static readonly Command Ping =            new(CommandKey.Ping,            "PING"u8.ToU8String());
     public static readonly Command Pong =            new(CommandKey.Pong,            "PONG"u8.ToU8String());
     public static readonly Command Join =            new(CommandKey.Join,            "JOIN"u8.ToU8String());
     public static readonly Command Part =            new(CommandKey.Part,            "PART"u8.ToU8String());
-    public static readonly Command Privmsg =         new(CommandKey.Privmsg,         "PRIVMSG"u8.ToU8String());
+    public static readonly Command Privmsg =         new(CommandKey.Privmsg,         PRIVMSG.ToU8String());
     public static readonly Command Whisper =         new(CommandKey.Whisper,         "WHISPER"u8.ToU8String());
-    public static readonly Command Clearchat =       new(CommandKey.Clearchat,       "CLEARCHAT"u8.ToU8String());
+    public static readonly Command Clearchat =       new(CommandKey.Clearchat,       CLEARCHAT.ToU8String());
     public static readonly Command Clearmsg =        new(CommandKey.Clearmsg,        "CLEARMSG"u8.ToU8String());
     public static readonly Command GlobalUserState = new(CommandKey.GlobalUserState, "GLOBALUSERSTATE"u8.ToU8String());
     public static readonly Command HostTarget =      new(CommandKey.HostTarget,      "HOSTTARGET"u8.ToU8String());
@@ -24,7 +31,7 @@ public readonly record struct Command(
     public static readonly Command RplYourHost =     new(CommandKey.RplYourHost,     "002"u8.ToU8String());
     public static readonly Command RplCreated =      new(CommandKey.RplCreated,      "003"u8.ToU8String());
     public static readonly Command RplMyInfo =       new(CommandKey.RplMyInfo,       "004"u8.ToU8String());
-    public static readonly Command RplNamReply =     new(CommandKey.RplEndOfNames,   "353"u8.ToU8String());
+    public static readonly Command RplNamReply =     new(CommandKey.RplNamReply,   "353"u8.ToU8String());
     public static readonly Command RplEndOfNames =   new(CommandKey.RplEndOfNames,   "366"u8.ToU8String());
     public static readonly Command RplMotd =         new(CommandKey.RplMotd,         "372"u8.ToU8String());
     public static readonly Command RplMotdStart =    new(CommandKey.RplMotdStart,    "375"u8.ToU8String());
@@ -33,65 +40,80 @@ public readonly record struct Command(
     public static Command? Parse(ref ReadOnlySpan<byte> source)
     {
         // Fast path
-        if (source.StartsWith("PRIVMSG"u8))
+        if (source.StartsWith(PRIVMSG))
         {
-            source = source["PRIVMSG"u8.Length..];
+            source = source[PRIVMSG.Length..];
             return Privmsg;
         }
-
-        (var raw, source) = source.SplitFirst((byte)' ');
-
-        return raw switch
+        else if (source.StartsWith(CLEARCHAT))
         {
-            [(byte)'P', ..var rest] => rest switch
+            source = source[CLEARCHAT.Length..];
+            return Clearchat;
+        }
+
+        return ParseSlow(ref source);
+    }
+
+    public static Command? ParseSlow(ref ReadOnlySpan<byte> source)
+    {
+        var raw = source.FastSplit((byte)' ', out source);
+        raw = raw.Length is 0 ? source : raw;
+
+        if (raw.Length is 0)
+        {
+            return null;
+        }
+
+        var rest = raw[1..];
+        return raw[0] switch
+        {
+            (byte)'P' => rest switch
             {
                 _ when rest.SequenceEqual("ING"U8) => Ping,
                 _ when rest.SequenceEqual("ONG"U8) => Pong,
                 _ when rest.SequenceEqual("ART"U8) => Part,
-                _ => default
+                _ => new(CommandKey.Undefined, raw.ToU8String()),
             },
-            [(byte)'J', ..var rest] when rest.SequenceEqual("OIN"u8) => Join,
-            [(byte)'W', ..var rest] when rest.SequenceEqual("HISPER"u8) => Whisper,
-            [(byte)'C', ..var rest] => rest switch
+            (byte)'J' when rest.SequenceEqual("OIN"u8) => Join,
+            (byte)'W' when rest.SequenceEqual("HISPER"u8) => Whisper,
+            (byte)'C' => rest switch
             {
-                _ when rest.SequenceEqual("LEARCHAT"u8) => Clearchat,
                 _ when rest.SequenceEqual("LEARMSG"u8) => Clearmsg,
                 _ when rest.SequenceEqual("AP"u8) => Capability,
-                _ => default
+                _ => new(CommandKey.Undefined, raw.ToU8String()),
             },
-            [(byte)'G', ..var rest] when rest.SequenceEqual("LOBALUSERSTATE"u8) => GlobalUserState,
-            [(byte)'H', ..var rest] when rest.SequenceEqual("OSTTARGET"u8) => HostTarget,
-            [(byte)'N', ..var rest] when rest.SequenceEqual("OTICE"u8) => Notice,
-            [(byte)'R', ..var rest] => rest switch
+            (byte)'G' when rest.SequenceEqual("LOBALUSERSTATE"u8) => GlobalUserState,
+            (byte)'H' when rest.SequenceEqual("OSTTARGET"u8) => HostTarget,
+            (byte)'N' when rest.SequenceEqual("OTICE"u8) => Notice,
+            (byte)'R' => rest switch
             {
                 _ when rest.SequenceEqual("ECONNECT"u8) => Reconnect,
                 _ when rest.SequenceEqual("OOMSTATE"u8) => RoomState,
-                _ => default
+                _ => new(CommandKey.Undefined, raw.ToU8String()),
             },
-            [(byte)'U', ..var rest] => rest switch
+            (byte)'U' => rest switch
             {
                 _ when rest.SequenceEqual("SERNOTICE"u8) => UserNotice,
                 _ when rest.SequenceEqual("SERSTATE"u8) => UserState,
-                _ => default
+                _ => new(CommandKey.Undefined, raw.ToU8String()),
             },
-            [(byte)'0', ..var rest] => rest switch
+            (byte)'0' => rest switch
             {
                 _ when rest.SequenceEqual("01"u8) => RplWelcome,
                 _ when rest.SequenceEqual("02"u8) => RplYourHost,
                 _ when rest.SequenceEqual("03"u8) => RplCreated,
                 _ when rest.SequenceEqual("04"u8) => RplMyInfo,
-                _ => default
+                _ => new(CommandKey.Undefined, raw.ToU8String()),
             },
-            [(byte)'3', ..var rest] => rest switch
+            (byte)'3' => rest switch
             {
                 _ when rest.SequenceEqual("53"u8) => RplNamReply,
                 _ when rest.SequenceEqual("66"u8) => RplEndOfNames,
                 _ when rest.SequenceEqual("72"u8) => RplMotd,
                 _ when rest.SequenceEqual("75"u8) => RplMotdStart,
-                _ => default
+                _ => new(CommandKey.Undefined, raw.ToU8String()),
             },
-            { IsEmpty: false } => new(CommandKey.Undefined, raw.ToU8String()),
-            _ => default
+            _ => new(CommandKey.Undefined, raw.ToU8String()),
         };
     }
 }
