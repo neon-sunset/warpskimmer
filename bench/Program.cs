@@ -1,14 +1,25 @@
 ﻿using BenchmarkDotNet.Running;
+using Feetlicker;
 
-BenchmarkSwitcher
-    .FromAssembly(typeof(Program).Assembly)
-    .Run(args);
+internal class Program
+{
+    private static void Main(string[] args)
+    {
+        BenchmarkSwitcher
+            .FromAssembly(typeof(Program).Assembly)
+            .Run(args);
+    }
+}
 
-// var parsed = File
+// var lines = File
 //     .ReadLines("data.txt")
 //     .Select(x => x.ToU8String())
-//     .Take(100)
 //     .ToArray();
 
-// foreach (var msg in parsed)
-//     Console.WriteLine(Message.Parse(msg));
+// foreach (var i in 0..100)
+// {
+//     foreach (var line in lines)
+//     {
+//         _ = Message.Parse(line);
+//     }
+// }
