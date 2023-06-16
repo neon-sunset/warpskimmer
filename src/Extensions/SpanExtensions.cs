@@ -70,4 +70,11 @@ internal static class SpanExtensions
     {
         return MemoryMarshal.CreateReadOnlySpan(ref value, length);
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static ref T ElementAt<T>(this ref T value, int index)
+        where T : unmanaged
+    {
+        return ref Unsafe.Add(ref value, index);
+    }
 }

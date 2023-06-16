@@ -116,6 +116,30 @@ public static class SplitExtensions
             : (source, ReadOnlyMemory<T>.Empty);
     }
 
+    public static int Split<T>(this ReadOnlySpan<T> source, Span<Range> destination, T separator)
+        where T : IEquatable<T>
+    {
+        var rangeCount = 0;
+        var sourceIndex = 0;
+
+        foreach (var destinationIndex in 0..destination.Length)
+        {
+            var separatorIndex = source[sourceIndex..].IndexOf(separator);
+            if (separatorIndex < 0)
+            {
+                destination[destinationIndex] = sourceIndex..source.Length;
+                rangeCount++;
+                break;
+            }
+
+            destination[destinationIndex] = sourceIndex..(separatorIndex + sourceIndex);
+            sourceIndex += separatorIndex + 1;
+            rangeCount++;
+        }
+
+        return rangeCount;
+    }
+
     public readonly ref struct SplitPair<T>
     {
         public readonly Span<T> Left;

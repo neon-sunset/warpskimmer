@@ -1,54 +1,14 @@
-﻿// See https://aka.ms/new-console-template for more information
-using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Jobs;
-using BenchmarkDotNet.Running;
-using Feetlicker;
-using U8Primitives;
+﻿using BenchmarkDotNet.Running;
 
-// var nonmsgs = File
+BenchmarkSwitcher
+    .FromAssembly(typeof(Program).Assembly)
+    .Run(args);
+
+// var parsed = File
 //     .ReadLines("data.txt")
-//     .Where(line => !line.Contains("PRIVMSG"))
+//     .Select(x => x.ToU8String())
+//     .Take(100)
 //     .ToArray();
 
-// foreach (var line in nonmsgs.Take(100))
-//     Console.WriteLine(line);
-
-// Console.WriteLine($"nonmsg count: {nonmsgs.Length}");
-
-BenchmarkRunner.Run<CommandBenchmark>();
-
-[ShortRunJob, ShortRunJob(RuntimeMoniker.NativeAot80)]
-// [MemoryDiagnoser, DisassemblyDiagnoser(maxDepth: 3)]
-public class CommandBenchmark
-{
-    [Params("PRIVMSG", "CLEARCHAT #forsen", "USERNOTICE xdd")]
-    public string Value = "";
-
-    private U8String RawCommand;
-
-    [GlobalSetup]
-    public void Setup()
-    {
-        RawCommand = Value.ToU8String();
-    }
-
-    [Benchmark]
-    public Command? Parse()
-    {
-        var bytes = RawCommand.AsSpan();
-        return Command.Parse(ref bytes);
-    }
-
-    [Benchmark]
-    public Command? Parse2()
-    {
-        var bytes = RawCommand.AsSpan();
-        return Command.Parse2(ref bytes);
-    }
-
-    [Benchmark]
-    public Command? ParseReference()
-    {
-        return RawCommand.StartsWith("PRIVMSG"u8) ? Command.Privmsg : null;
-    }
-}
+// foreach (var msg in parsed)
+//     Console.WriteLine(Message.Parse(msg));

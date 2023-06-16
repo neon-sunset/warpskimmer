@@ -2,6 +2,8 @@
 using System.Runtime.CompilerServices;
 using System.Text;
 
+using CommunityToolkit.Diagnostics;
+
 namespace Feetlicker;
 
 public readonly record struct Command(
@@ -37,42 +39,32 @@ public readonly record struct Command(
     public static readonly Command RplMotdStart =    new(CommandKey.RplMotdStart,    "375"u8.ToU8String());
     public static readonly Command RplEndOfMotd =    new(CommandKey.RplEndOfMotd,    "376"u8.ToU8String());
 
-    public static Command? Parse(ref ReadOnlySpan<byte> source)
+    public static Command Parse(ReadOnlySpan<byte> source)
     {
         // Fast path
         if (source.StartsWith(PRIVMSG))
         {
-            source = source[PRIVMSG.Length..];
             return Privmsg;
         }
         else if (source.StartsWith(CLEARCHAT))
         {
-            source = source[CLEARCHAT.Length..];
             return Clearchat;
         }
 
-        return ParseSlow(ref source);
+        return ParseSlow(source);
     }
 
-    public static Command? ParseSlow(ref ReadOnlySpan<byte> source)
+    public static Command ParseSlow(ReadOnlySpan<byte> source)
     {
-        var raw = source.FastSplit((byte)' ', out source);
-        raw = raw.Length is 0 ? source : raw;
-
-        if (raw.Length is 0)
-        {
-            return null;
-        }
-
-        var rest = raw[1..];
-        return raw[0] switch
+        var rest = source[1..];
+        return source[0] switch
         {
             (byte)'P' => rest switch
             {
                 _ when rest.SequenceEqual("ING"U8) => Ping,
                 _ when rest.SequenceEqual("ONG"U8) => Pong,
                 _ when rest.SequenceEqual("ART"U8) => Part,
-                _ => new(CommandKey.Undefined, raw.ToU8String()),
+                _ => ThrowHelper.ThrowArgumentException<Command>(nameof(source))
             },
             (byte)'J' when rest.SequenceEqual("OIN"u8) => Join,
             (byte)'W' when rest.SequenceEqual("HISPER"u8) => Whisper,
@@ -80,7 +72,7 @@ public readonly record struct Command(
             {
                 _ when rest.SequenceEqual("LEARMSG"u8) => Clearmsg,
                 _ when rest.SequenceEqual("AP"u8) => Capability,
-                _ => new(CommandKey.Undefined, raw.ToU8String()),
+                _ => ThrowHelper.ThrowArgumentException<Command>(nameof(source))
             },
             (byte)'G' when rest.SequenceEqual("LOBALUSERSTATE"u8) => GlobalUserState,
             (byte)'H' when rest.SequenceEqual("OSTTARGET"u8) => HostTarget,
@@ -89,13 +81,13 @@ public readonly record struct Command(
             {
                 _ when rest.SequenceEqual("ECONNECT"u8) => Reconnect,
                 _ when rest.SequenceEqual("OOMSTATE"u8) => RoomState,
-                _ => new(CommandKey.Undefined, raw.ToU8String()),
+                _ => ThrowHelper.ThrowArgumentException<Command>(nameof(source))
             },
             (byte)'U' => rest switch
             {
                 _ when rest.SequenceEqual("SERNOTICE"u8) => UserNotice,
                 _ when rest.SequenceEqual("SERSTATE"u8) => UserState,
-                _ => new(CommandKey.Undefined, raw.ToU8String()),
+                _ => ThrowHelper.ThrowArgumentException<Command>(nameof(source))
             },
             (byte)'0' => rest switch
             {
@@ -103,7 +95,7 @@ public readonly record struct Command(
                 _ when rest.SequenceEqual("02"u8) => RplYourHost,
                 _ when rest.SequenceEqual("03"u8) => RplCreated,
                 _ when rest.SequenceEqual("04"u8) => RplMyInfo,
-                _ => new(CommandKey.Undefined, raw.ToU8String()),
+                _ => ThrowHelper.ThrowArgumentException<Command>(nameof(source))
             },
             (byte)'3' => rest switch
             {
@@ -111,9 +103,9 @@ public readonly record struct Command(
                 _ when rest.SequenceEqual("66"u8) => RplEndOfNames,
                 _ when rest.SequenceEqual("72"u8) => RplMotd,
                 _ when rest.SequenceEqual("75"u8) => RplMotdStart,
-                _ => new(CommandKey.Undefined, raw.ToU8String()),
+                _ => ThrowHelper.ThrowArgumentException<Command>(nameof(source))
             },
-            _ => new(CommandKey.Undefined, raw.ToU8String()),
+            _ => ThrowHelper.ThrowArgumentException<Command>(nameof(source))
         };
     }
 }
