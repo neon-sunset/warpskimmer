@@ -3,7 +3,6 @@ using BenchmarkDotNet.Jobs;
 
 namespace Feetlicker.Benchmark;
 
-
 [ShortRunJob, ShortRunJob(RuntimeMoniker.NativeAot80)]
 // [MemoryDiagnoser, DisassemblyDiagnoser(maxDepth: 3)]
 public class ParseCommand

@@ -5,7 +5,7 @@ public readonly record struct Prefix(
     U8String? Nickname = null,
     U8String? Username = null)
 {
-    public static unsafe Prefix Parse(U8String source)
+    public static Prefix Parse(U8String source)
     {
         var nickname = default(U8String?);
         var username = default(U8String?);

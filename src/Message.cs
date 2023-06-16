@@ -33,8 +33,6 @@ public record Message(
         var tagRanges = tokenizedView.Tags;
         if (tagRanges != null)
         {
-            var firstTag = tagRanges[0];
-            tagRanges[0] = 1..firstTag.End; // Remove '@' prefix
             tags = new Tag[tagRanges.Length];
             for (var i = 0; i < tagRanges.Length; i++)
             {
@@ -82,16 +80,22 @@ public record Message(
         Range? channel = null;
         Range? parameters = null;
 
-        // 0: tags, 1: prefix, 2: command, 3: channel, 4: parameters
-        var ranges = new Range[5].AsSpan();
-        var rangeCount = line.Split(ranges, (byte)' ');
-        ranges = ranges[..rangeCount];
-
-        if (First(line, ranges) is (byte)'@')
+        var tagsEnd = 0;
+        if (line[0] is (byte)'@')
         {
-            var tagRange = ranges[0];
-            tags = Tag.TokenizeAll(line[tagRange], tagRange.Start.Value);
-            ranges = ranges[1..];
+            var tagsLength = line.IndexOf((byte)' ');
+            tagsEnd = tagsLength + 1;
+            tags = Tag.TokenizeAll(line[1..tagsLength], 1);
+        }
+
+        // 0: prefix, 1: command, 2: channel, 3: parameters
+        var ranges = new Range[4].AsSpan();
+        var rangeCount = line[tagsEnd..].Split(ranges, (byte)' ');
+        ranges = ranges[..rangeCount];
+        for (var i = 0; i < ranges.Length; i++)
+        {
+            var range = ranges[i];
+            ranges[i] = (range.Start.Value + tagsEnd)..(range.End.Value + tagsEnd);
         }
 
         if (First(line, ranges) is (byte)':')
