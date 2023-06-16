@@ -1,4 +1,6 @@
 ## Perf Estimation
+Time to parse 1000 sample lines from forsen chat stream.
+Goal: <333ns per line
 ```txt
 BenchmarkDotNet=v0.13.5, OS=macOS 14.0 [Darwin 23.0.0]
 Apple M1 Pro, 1 CPU, 8 logical and 8 physical cores
