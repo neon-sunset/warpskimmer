@@ -9,13 +9,16 @@ public class ParseMessage
 {
     private U8String[] Lines = null!;
 
+    [Params(1, 1000, 100_000)]
+    public int Count;
+
     [GlobalSetup]
     public void Setup()
     {
         Lines = File
             .ReadLines("data.txt")
             .Select(x => x.ToU8String())
-            .Take(1000)
+            .Take(Count)
             .ToArray();
     }
 

@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Buffers;
+using System.Runtime.CompilerServices;
 
 namespace Feetlicker;
 
@@ -15,27 +16,31 @@ public readonly record struct Tag
         Value = value;
     }
 
+    public static List<Tag>? ParseAll(ref U8String source)
+    {
+        if (source is not [(byte)'@', ..var tagsValue])
+        {
+            return null;
+        }
+
+        (tagsValue, source) = tagsValue.SplitFirst((byte)' ');
+
+        var tags = new List<Tag>(32);
+        do
+        {
+            (var tag, tagsValue) = tagsValue.SplitFirst((byte)';');
+            tags.Add(Parse(tag));
+        } while (tagsValue.Length > 0);
+
+        return tags;
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Tag Parse(U8String value)
     {
         var (key, tagValue) = value.SplitFirst((byte)'=');
 
         return new Tag(key, tagValue);
-    }
-
-    public static Range[] TokenizeAll(ReadOnlySpan<byte> value, int offset)
-    {
-        var ranges = (stackalloc Range[128]);
-        var tagCount = value.Split(ranges, (byte)';');
-
-        var result = new Range[tagCount];
-        for (var i = 0; i < tagCount; i++)
-        {
-            var range = ranges[i];
-            result[i] = (range.Start.Value + offset)..(range.End.Value + offset);
-        }
-
-        return result;
     }
 }
 

@@ -19,16 +19,21 @@ public class ParseCommand
     }
 
     [Benchmark]
-    public Command? Parse() => Command.Parse(RawCommand);
+    public Command? Parse()
+    {
+        var local = RawCommand;
+        return Command.Parse(ref local);
+    }
 
     [Benchmark]
     public Command? ParseReference()
     {
-        return RawCommand.AsSpan() switch
+        var local = RawCommand;
+        return local switch
         {
-            var s when s.StartsWith("PRIVMSG"u8) => Command.Privmsg,
-            var s when s.StartsWith("CLEARCHAT"u8) => Command.Clearchat,
-            var s when s.StartsWith("USERNOTICE"u8) => Command.UserNotice,
+            _ when local.Equals("PRIVMSG"u8) => Command.Privmsg,
+            _ when local.Equals("CLEARCHAT"u8) => Command.Clearchat,
+            _ when local.Equals("USERNOTICE"u8) => Command.UserNotice,
             _ => null
         };
     }

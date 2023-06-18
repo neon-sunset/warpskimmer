@@ -1,8 +1,4 @@
-﻿using System.Collections.Frozen;
-using System.Runtime.CompilerServices;
-using System.Text;
-
-using CommunityToolkit.Diagnostics;
+﻿using CommunityToolkit.Diagnostics;
 
 namespace Feetlicker;
 
@@ -39,19 +35,17 @@ public readonly record struct Command(
     public static readonly Command RplMotdStart =    new(CommandKey.RplMotdStart,    "375"u8.ToU8String());
     public static readonly Command RplEndOfMotd =    new(CommandKey.RplEndOfMotd,    "376"u8.ToU8String());
 
-    public static Command Parse(ReadOnlySpan<byte> source)
+    public static Command Parse(ref U8String source)
     {
-        // Fast path
-        if (source.StartsWith(PRIVMSG))
-        {
-            return Privmsg;
-        }
-        else if (source.StartsWith(CLEARCHAT))
-        {
-            return Clearchat;
-        }
+        // Does not handle 'CAP REQ'. What do?
+        (var commandValue, source) = source.SplitFirst((byte)' ');
 
-        return ParseSlow(source);
+        return commandValue switch
+        {
+            _ when commandValue == PRIVMSG => Privmsg,
+            _ when commandValue == CLEARCHAT => Clearchat,
+            _ => ParseSlow(commandValue)
+        };
     }
 
     public static Command ParseSlow(ReadOnlySpan<byte> source)
