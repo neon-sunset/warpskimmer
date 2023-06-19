@@ -13,7 +13,12 @@ public record Message(
         var prefix = Feetlicker.Prefix.Parse(ref line);
         var command = Command.Parse(ref line);
         var channel = ParseChannel(ref line);
-        var parameters = !line.IsEmpty ? line : default(U8String?);
+        var parameters = line switch
+        {
+            [(byte)':', ..] => line[1..],
+            { Length: > 0 } => line,
+            _ => default(U8String?)
+        };
 
         return new Message(tags, prefix, command, channel, parameters);
     }

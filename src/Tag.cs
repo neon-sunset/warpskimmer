@@ -1,5 +1,9 @@
 ﻿using System.Buffers;
+using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.Arm;
 
 namespace Feetlicker;
 
@@ -28,21 +32,49 @@ public readonly record struct Tag
         }
 
         // Last range is the remainder of the source
-        var tagsValue = deref[1..];
+        var allTags = deref[1..];
         var tagRanges = (stackalloc Range[128]);
-        var tagCount = SplitTags(tagsValue, tagRanges);
+        var tagCount = SplitTags(allTags, tagRanges);
         var tags = new Tag[tagCount];
 
         for (var i = 0; i < tags.Length; i++)
         {
-            tags[i] = Parse(tagsValue[tagRanges[i]]);
+            var tagValue = allTags[tagRanges[i]];
+            var separator = IndexOfSeparator(
+                ref MemoryMarshal.GetReference<byte>(tagValue));
+
+            tags[i] = separator is > 0 and <= 16
+                ? new Tag(tagValue[..separator], tagValue[(separator + 1)..])
+                : Parse(tagValue);
         }
 
-        source = tagsValue[tagRanges[tagCount]];
+        source = allTags[tagRanges[tagCount]];
         return tags;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int IndexOfSeparator(ref byte ptr)
+    {
+        var eqmask = Vector128.Equals(
+            Vector128.LoadUnsafe(ref ptr),
+            Vector128.Create((byte)'='));
+
+        if (ArmBase.IsSupported)
+        {
+            var matches = AdvSimd
+                .ShiftRightLogicalNarrowingLower(eqmask.AsUInt16(), 4)
+                .AsUInt64()
+                .ToScalar();
+            return BitOperations.TrailingZeroCount(matches) >> 2;
+        }
+        else
+        {
+            return BitOperations.TrailingZeroCount(
+                eqmask.ExtractMostSignificantBits());
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
     public static Tag Parse(U8String value)
     {
         var (key, tagValue) = value.SplitFirst((byte)'=');
