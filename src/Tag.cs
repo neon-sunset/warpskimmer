@@ -21,12 +21,14 @@ public readonly record struct Tag
 
     public static Tag[]? ParseAll(ref U8String source)
     {
-        if (source is not [(byte)'@', ..var tagsValue])
+        var deref = source;
+        if (deref[0] != (byte)'@')
         {
             return null;
         }
 
         // Last range is the remainder of the source
+        var tagsValue = deref[1..];
         var tagRanges = (stackalloc Range[128]);
         var tagCount = SplitTags(tagsValue, tagRanges);
         var tags = new Tag[tagCount];
