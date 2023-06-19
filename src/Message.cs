@@ -1,9 +1,7 @@
-using System.Runtime.CompilerServices;
-
 namespace Feetlicker;
 
 public record Message(
-    List<Tag>? Tags,
+    Tag[]? Tags,
     Prefix? Prefix,
     Command Command,
     U8String? Channel,
