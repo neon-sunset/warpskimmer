@@ -38,13 +38,14 @@ public readonly record struct Command(
     public static Command Parse(ref U8String source)
     {
         // Does not handle 'CAP REQ'. What do?
-        (var commandValue, source) = source.SplitFirst((byte)' ');
+        (var commandString, source) = source.SplitFirst((byte)' ');
+        var commandSpan = commandString.AsSpan();
 
-        return commandValue switch
+        return commandSpan switch
         {
-            _ when commandValue == PRIVMSG => Privmsg,
-            _ when commandValue == CLEARCHAT => Clearchat,
-            _ => ParseSlow(commandValue)
+            _ when commandSpan.SequenceEqual(PRIVMSG) => Privmsg,
+            _ when commandSpan.SequenceEqual(CLEARCHAT) => Clearchat,
+            _ => ParseSlow(commandSpan)
         };
     }
 
@@ -97,6 +98,7 @@ public readonly record struct Command(
                 _ when rest.SequenceEqual("66"u8) => RplEndOfNames,
                 _ when rest.SequenceEqual("72"u8) => RplMotd,
                 _ when rest.SequenceEqual("75"u8) => RplMotdStart,
+                _ when rest.SequenceEqual("76"u8) => RplEndOfMotd,
                 _ => ThrowHelper.ThrowArgumentException<Command>(nameof(source))
             },
             _ => ThrowHelper.ThrowArgumentException<Command>(nameof(source))

@@ -1,3 +1,5 @@
+using U8Primitives.Unsafe;
+
 namespace Feetlicker;
 
 public record Message(
@@ -15,7 +17,7 @@ public record Message(
         var channel = ParseChannel(ref line);
         var parameters = line switch
         {
-            [(byte)':', ..] => line[1..],
+            [(byte)':', ..] => U8Marshal.Substring(line, 1),
             { Length: > 0 } => line,
             _ => default(U8String?)
         };
