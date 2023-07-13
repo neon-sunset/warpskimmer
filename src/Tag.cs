@@ -10,10 +10,8 @@ namespace Feetlicker;
 
 public readonly record struct Tag
 {
-    private static readonly SearchValues<byte> Delimiters = SearchValues
-        .Create(stackalloc byte[] { (byte)' ', (byte)';' });
+    private static readonly SearchValues<byte> Delimiters = SearchValues.Create(" ;"u8);
 
-    // TODO: Use enum for key, which is slower but also more type-safe
     public U8String Key { get; }
 
     public U8String Value { get; }
@@ -62,7 +60,7 @@ public readonly record struct Tag
             Vector128.LoadUnsafe(ref ptr),
             Vector128.Create((byte)'='));
 
-        if (ArmBase.IsSupported)
+        if (AdvSimd.IsSupported)
         {
             var matches = AdvSimd
                 .ShiftRightLogicalNarrowingLower(eqmask.AsUInt16(), 4)
@@ -109,9 +107,4 @@ public readonly record struct Tag
 
         return rangeCount;
     }
-}
-
-public enum TagKey
-{
-    Undefined
 }
