@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.Arm;
-using U8Primitives.Unsafe;
+using U8Primitives.InteropServices;
 
 namespace Feetlicker;
 
@@ -31,7 +31,7 @@ public readonly record struct Tag
         }
 
         // Last range is the remainder of the source
-        var allTags = U8Marshal.Substring(deref, 1);
+        var allTags = U8Marshal.Slice(deref, 1);
         var tagRanges = (stackalloc Range[128]);
         var tagCount = SplitTags(allTags, tagRanges);
         var tags = new Tag[tagCount];
@@ -44,8 +44,8 @@ public readonly record struct Tag
 
             tags[i] = separator is > 0 and <= 16
                 ? new Tag(
-                    U8Marshal.Slice(tagValue, ..separator),
-                    U8Marshal.Slice(tagValue, (separator + 1)..))
+                    U8Marshal.Slice(tagValue, 0, separator),
+                    U8Marshal.Slice(tagValue, separator + 1))
                 : Parse(tagValue);
         }
 
