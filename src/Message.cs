@@ -28,11 +28,12 @@ public record Message(
     private static U8String? ParseChannel(ref U8String line)
     {
         var channel = default(U8String?);
-        if (line is [(byte)'#', ..var channelValue])
+        var deref = line;
+        if (deref[0] is (byte)'#')
         {
-            var (channelName, rest) = channelValue.SplitFirst((byte)' ');
-            channel = channelName;
-            line = rest;
+            (channel, line) = U8Marshal
+                .Slice(deref, 1)
+                .SplitFirst((byte)' ');
         }
 
         return channel;

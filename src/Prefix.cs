@@ -1,4 +1,6 @@
-﻿namespace Feetlicker;
+﻿using U8Primitives.InteropServices;
+
+namespace Feetlicker;
 
 public readonly record struct Prefix(
     U8String Host,
@@ -7,12 +9,15 @@ public readonly record struct Prefix(
 {
     public static Prefix? Parse(ref U8String source)
     {
-        if (source is not [(byte)':', ..var prefixValue])
+        var prefixValue = source;
+        if (prefixValue[0] != (byte)':')
         {
             return null;
         }
 
-        (prefixValue, source) = prefixValue.SplitFirst((byte)' ');
+        (prefixValue, source) = U8Marshal
+            .Slice(prefixValue, 1)
+            .SplitFirst((byte)' ');
 
         var nickname = default(U8String?);
         var username = default(U8String?);
