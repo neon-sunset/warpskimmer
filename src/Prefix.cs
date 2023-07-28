@@ -2,7 +2,7 @@
 
 namespace Feetlicker;
 
-public readonly record struct Prefix(
+public record Prefix(
     U8String Host,
     U8String? Nickname = null,
     U8String? Username = null)

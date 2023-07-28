@@ -12,7 +12,7 @@ public record Message(
     public static Message Parse(U8String line)
     {
         var tags = Tag.ParseAll(ref line);
-        var prefix = Feetlicker.Prefix.Parse(ref line);
+        var prefix = Prefix.Parse(ref line);
         var command = Command.Parse(ref line);
         var channel = ParseChannel(ref line);
         var parameters = line switch
@@ -27,15 +27,16 @@ public record Message(
 
     private static U8String? ParseChannel(ref U8String line)
     {
-        var channel = default(U8String?);
         var deref = line;
         if (deref[0] is (byte)'#')
         {
-            (channel, line) = U8Marshal
+            (var channel, line) = U8Marshal
                 .Slice(deref, 1)
                 .SplitFirst((byte)' ');
+
+            return channel;
         }
 
-        return channel;
+        return null;
     }
 }
