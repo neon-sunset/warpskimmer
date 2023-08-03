@@ -1,7 +1,7 @@
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
 
-namespace Feetlicker.Benchmark;
+namespace Warpskimmer.Benchmark;
 
 [ShortRunJob, ShortRunJob(RuntimeMoniker.NativeAot80)]
 // [MemoryDiagnoser, DisassemblyDiagnoser(maxDepth: 3)]

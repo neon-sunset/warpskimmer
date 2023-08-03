@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Diagnostics;
 
-namespace Feetlicker;
+namespace Warpskimmer;
 
 public readonly record struct Command(
     CommandKey Key,

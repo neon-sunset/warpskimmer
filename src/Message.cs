@@ -1,6 +1,8 @@
+using CommunityToolkit.Diagnostics;
+
 using U8Primitives.InteropServices;
 
-namespace Feetlicker;
+namespace Warpskimmer;
 
 public record Message(
     Tag[]? Tags,
@@ -11,6 +13,8 @@ public record Message(
 {
     public static Message Parse(U8String line)
     {
+        Guard.IsGreaterThan(line.Length, 0);
+
         var tags = Tag.ParseAll(ref line);
         var prefix = Prefix.Parse(ref line);
         var command = Command.Parse(ref line);
@@ -28,7 +32,7 @@ public record Message(
     private static U8String? ParseChannel(ref U8String line)
     {
         var deref = line;
-        if (deref[0] is (byte)'#')
+        if (deref is [(byte)'#', ..])
         {
             (var channel, line) = U8Marshal
                 .Slice(deref, 1)

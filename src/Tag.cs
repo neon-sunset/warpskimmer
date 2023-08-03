@@ -6,20 +6,21 @@ using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.Arm;
 using U8Primitives.InteropServices;
 
-namespace Feetlicker;
+namespace Warpskimmer;
 
 public readonly record struct Tag
 {
     private static readonly SearchValues<byte> Delimiters = SearchValues.Create(" ;"u8);
 
-    public U8String Key { get; }
+    private readonly U8String.SplitPair _tagSplit;
 
-    public U8String Value { get; }
+    public U8String Key => _tagSplit.Segment;
 
-    public Tag(U8String key, U8String value)
+    public U8String Value => _tagSplit.Remainder;
+
+    public Tag(U8String.SplitPair tagSplit)
     {
-        Key = key;
-        Value = value;
+        _tagSplit = tagSplit;
     }
 
     public static Tag[]? ParseAll(ref U8String source)
@@ -39,13 +40,11 @@ public readonly record struct Tag
         for (var i = 0; i < tags.Length; i++)
         {
             var tagValue = U8Marshal.Slice(allTags, tagRanges[i]);
-            var separator = IndexOfSeparator(
+            var splitOffset = IndexOfSeparator(
                 ref MemoryMarshal.GetReference<byte>(tagValue));
 
-            tags[i] = separator is > 0 and <= 16
-                ? new Tag(
-                    U8Marshal.Slice(tagValue, 0, separator),
-                    U8Marshal.Slice(tagValue, separator + 1))
+            tags[i] = splitOffset is <= 16
+                ? new(U8Marshal.CreateSplitPair(tagValue, splitOffset, 1))
                 : Parse(tagValue);
         }
 
@@ -75,12 +74,10 @@ public readonly record struct Tag
         }
     }
 
-    [MethodImpl(MethodImplOptions.NoInlining)]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Tag Parse(U8String value)
     {
-        var (key, tagValue) = value.SplitFirst((byte)'=');
-
-        return new Tag(key, tagValue);
+        return new Tag(value.SplitFirst((byte)'='));
     }
 
     private static int SplitTags(ReadOnlySpan<byte> src, Span<Range> ranges)

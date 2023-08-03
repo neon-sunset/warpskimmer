@@ -1,6 +1,6 @@
 ﻿using U8Primitives.InteropServices;
 
-namespace Feetlicker;
+namespace Warpskimmer;
 
 public record Prefix(
     U8String Host,
