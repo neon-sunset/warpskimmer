@@ -13,12 +13,13 @@ Why is this fast:
 - Fully vectorized element scan operations on `{ReadOnly}Span<T>`s in CoreLib on all major ISAs
 - Custom UTF-8 string primitive (`U8String`) which makes different treadeoffs than both `string` and `Utf8String` prototype that existed around .NET 5, leaning heavily towards in between Rust's and Golang's implementation choices:
   - Non-copying slicing and bounds-check and utf8-validation-free unsafe slicing API which preserves the original U8String type signature (can be boxed unlike `ROS<byte>`, can be used for lookup, stored in an array, etc. unlike `ROM<byte>`)
-  - `split_once()`-like `Split{First/Last}` methods which return compact "split pair" struct used by `Tag`s
   - Being UTF-8 which improves the throughput of SIMD scanning by 2x
   - Being a `(byte[], int, int)` struct which allows the compiler to optimize away, forward and CSE operations on it where possible
 - Not being compliant with full IRCv3 spec but rather targeting the exact message order and format of Twitch chat websocket stream
 - Performing opportunistic tag separator matching with AdvSimd/SSE2 inside the parser loop avoiding `SpanHelpers.IndexOfAny...` call to vectorized search for the full span
 - Simplicity of the implementation: by passing `ref U8String`, we can incrementally update the slice until we finish in a pointer math-like fashion without actually writing unsafe code (aside from ensuring that the offsets are correct to prevent malformed UTF-8 slices or dereferencing invalid memory ranges)
+- Careful `ref U8String` dereferencing and ref updating to reduce write barriers yet enable JIT to reason about its state as a part of local scope
+- Compact `Tag` layout enabled by `U8String.SplitPair` which holds interior string and split offsets - further reduces alloc size and write barriers on `Tag` assignment to `Tag[]`
 
 ## Perf Estimation
 Time to parse 1000 sample lines from forsen chat stream.
