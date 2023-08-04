@@ -26,7 +26,7 @@ public readonly record struct Tag
     public static Tag[]? ParseAll(ref U8String source)
     {
         var deref = source;
-        if (deref[0] != (byte)'@')
+        if (U8Marshal.GetReference(deref) != (byte)'@')
         {
             return null;
         }
@@ -36,14 +36,15 @@ public readonly record struct Tag
         var tagRanges = (stackalloc Range[128]);
         var tagCount = SplitTags(allTags, tagRanges);
         var tags = new Tag[tagCount];
+        var tagSpan = tags.AsSpan();
 
-        for (var i = 0; i < tags.Length; i++)
+        for (var i = 0; i < tagSpan.Length; i++)
         {
             var tagValue = U8Marshal.Slice(allTags, tagRanges[i]);
             var splitOffset = IndexOfSeparator(
-                ref MemoryMarshal.GetReference<byte>(tagValue));
+                ref MemoryMarshal.GetReference(U8Marshal.GetSpan(tagValue)));
 
-            tags[i] = splitOffset is <= 16
+            tagSpan.IndexUnsafe(i) = splitOffset is <= 16
                 ? new(U8Marshal.CreateSplitPair(tagValue, splitOffset, 1))
                 : Parse(tagValue);
         }
@@ -87,17 +88,19 @@ public readonly record struct Tag
 
         for (var matchCount = 0; matchCount < ranges.Length; matchCount++)
         {
-            var separatorIndex = src[sourceIndex..].IndexOfAny(Delimiters);
+            var separatorIndex = src
+                .SliceUnsafe(sourceIndex)
+                .IndexOfAny(Delimiters);
             var delimiterOffset = sourceIndex + separatorIndex;
-            if (src[delimiterOffset] is (byte)' ')
+            if (src.IndexUnsafe(delimiterOffset) is (byte)' ')
             {
-                ranges[matchCount] = sourceIndex..delimiterOffset;
-                ranges[matchCount + 1] = ++delimiterOffset..src.Length;
+                ranges.IndexUnsafe(matchCount) = sourceIndex..delimiterOffset;
+                ranges.IndexUnsafe(matchCount + 1) = ++delimiterOffset..src.Length;
                 rangeCount++;
                 break;
             }
 
-            ranges[matchCount] = sourceIndex..delimiterOffset;
+            ranges.IndexUnsafe(matchCount) = sourceIndex..delimiterOffset;
             sourceIndex += separatorIndex + 1;
             rangeCount++;
         }
