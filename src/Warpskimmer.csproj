@@ -9,7 +9,6 @@
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Diagnostics" Version="8.2.0" />
-    <PackageReference Include="RangeExtensions" Version="2.1.1" />
   </ItemGroup>
 
   <ItemGroup>
