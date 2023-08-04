@@ -6,9 +6,13 @@
 - [ ] Productize the library and publish to nuget (blocked by U8String impl.)
 
 ## Disclaimer
-This prototype depends on work-in-progress implementation of `U8String` at https://github.com/neon-sunset/U8String/tree/enumerators-and-canonical-ops (specifically this branch) which is required for building the library and running the benchmarks.
+This prototype depends on work-in-progress implementation of `U8String`.
 
-Why is this fast:
+In order to build and run the benchmarks, please make sure to
+- Clone with  `git clone --recurse-submodules https://github.com/neon-sunset/warpskimmer`
+- Install latest (left column) .NET 8 SDK from https://github.com/dotnet/installer#table
+
+## Why fast
 - Significant improvements in struct optimizations in latest .NET versions
 - Fully vectorized element scan operations on `{ReadOnly}Span<T>`s in CoreLib on all major ISAs
 - Custom UTF-8 string primitive (`U8String`) which makes different treadeoffs than both `string` and `Utf8String` prototype that existed around .NET 5, leaning heavily towards in between Rust's and Golang's implementation choices:
