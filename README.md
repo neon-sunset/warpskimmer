@@ -23,8 +23,8 @@ Why is this fast:
 ## Perf Estimation
 Time to parse 1000 sample lines from forsen chat stream.
 
-Goal: <333ns (2.529 GB/sec) per 884 byte line (worst case scenario from Forsen chat)
-- [x] x86_64 (Zen 3: 4.015 GB/sec)
+Goal: <333ns (~1.36(6) GB/sec) per 884 byte line (worst case scenario from Forsen chat)
+- [x] x86_64 (Zen 3: ~1.953 GB/sec)
 - [ ] arm64 (Apple M1 Pro: pending)
 
 ```txt
