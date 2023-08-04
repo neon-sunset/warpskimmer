@@ -1,0 +1,3 @@
+[submodule "deps/U8String"]
+	path = deps/U8String
+	url = https://github.com/neon-sunset/U8String

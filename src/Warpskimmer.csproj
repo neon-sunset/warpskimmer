@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\U8String\src\U8String.csproj" />
+    <ProjectReference Include="..\deps\U8String\src\U8String.csproj" />
   </ItemGroup>
 
 </Project>
