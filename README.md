@@ -11,6 +11,7 @@ This prototype depends on work-in-progress implementation of `U8String`.
 In order to build and run the benchmarks, please make sure to
 - Clone with  `git clone --recurse-submodules https://github.com/neon-sunset/warpskimmer`
 - Install latest (left column) .NET 8 SDK from https://github.com/dotnet/installer#table
+- `cd bench && dotnet run -c release`
 
 ## Why fast
 - Significant improvements in struct optimizations in latest .NET versions
