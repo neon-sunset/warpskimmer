@@ -12,15 +12,14 @@ public readonly record struct Tag
 {
     private static readonly SearchValues<byte> Delimiters = SearchValues.Create(" ;"u8);
 
-    private readonly U8String.SplitPair _tagSplit;
+    private readonly SplitPair TagSplit;
 
-    public U8String Key => _tagSplit.Segment;
+    public U8String Key => TagSplit.Segment;
+    public U8String Value => TagSplit.Remainder;
 
-    public U8String Value => _tagSplit.Remainder;
-
-    public Tag(U8String.SplitPair tagSplit)
+    public Tag(SplitPair tagSplit)
     {
-        _tagSplit = tagSplit;
+        TagSplit = tagSplit;
     }
 
     public static Tag[]? ParseAll(ref U8String source)
