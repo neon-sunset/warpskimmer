@@ -1,4 +1,6 @@
-﻿using CommunityToolkit.Diagnostics;
+﻿using System.Runtime.CompilerServices;
+using CommunityToolkit.Diagnostics;
+using U8Primitives.InteropServices;
 
 namespace Warpskimmer;
 
@@ -37,78 +39,96 @@ public readonly record struct Command(
 
     public static Command Parse(ref U8String source)
     {
-        // Does not handle 'CAP REQ'. What do?
-        (var commandString, source) = source.SplitFirst((byte)' ');
-        var commandSpan = commandString.AsSpan();
+        var deref = source;
+        var command =
+            deref.StartsWith(PRIVMSG) ? Privmsg :
+            deref.StartsWith(CLEARCHAT) ? Clearchat :
+            ParseSlow(deref);
 
-        return commandSpan switch
-        {
-            _ when commandSpan.SequenceEqual(PRIVMSG) => Privmsg,
-            _ when commandSpan.SequenceEqual(CLEARCHAT) => Clearchat,
-            _ => ParseSlow(commandSpan)
-        };
+        source = TrimEnd(deref, command.Value.Length);
+        return command;
     }
 
-    public static Command ParseSlow(ReadOnlySpan<byte> source)
+    public static Command ParseSlow(U8String source)
     {
-        var rest = source[1..];
+        var rest = source.AsSpan(1);
         return source[0] switch
         {
             (byte)'P' => rest switch
             {
-                _ when rest.SequenceEqual("ING"U8) => Ping,
-                _ when rest.SequenceEqual("ONG"U8) => Pong,
-                _ when rest.SequenceEqual("ART"U8) => Part,
-                _ => ThrowHelper.ThrowArgumentException<Command>(nameof(source))
+                _ when rest.StartsWith("ING"U8) => Ping,
+                _ when rest.StartsWith("ONG"U8) => Pong,
+                _ when rest.StartsWith("ART"U8) => Part,
+                _ => Unknown(source)
             },
-            (byte)'J' when rest.SequenceEqual("OIN"u8) => Join,
-            (byte)'W' when rest.SequenceEqual("HISPER"u8) => Whisper,
+            (byte)'J' when rest.StartsWith("OIN"u8) => Join,
+            (byte)'W' when rest.StartsWith("HISPER"u8) => Whisper,
             (byte)'C' => rest switch
             {
-                _ when rest.SequenceEqual("LEARMSG"u8) => Clearmsg,
-                _ when rest.SequenceEqual("AP"u8) => Capability,
-                _ => ThrowHelper.ThrowArgumentException<Command>(nameof(source))
+                _ when rest.StartsWith("LEARMSG"u8) => Clearmsg,
+                _ when rest.StartsWith("AP"u8) => Capability,
+                _ => Unknown(source)
             },
-            (byte)'G' when rest.SequenceEqual("LOBALUSERSTATE"u8) => GlobalUserState,
-            (byte)'H' when rest.SequenceEqual("OSTTARGET"u8) => HostTarget,
-            (byte)'N' when rest.SequenceEqual("OTICE"u8) => Notice,
+            (byte)'G' when rest.StartsWith("LOBALUSERSTATE"u8) => GlobalUserState,
+            (byte)'H' when rest.StartsWith("OSTTARGET"u8) => HostTarget,
+            (byte)'N' when rest.StartsWith("OTICE"u8) => Notice,
             (byte)'R' => rest switch
             {
-                _ when rest.SequenceEqual("ECONNECT"u8) => Reconnect,
-                _ when rest.SequenceEqual("OOMSTATE"u8) => RoomState,
-                _ => ThrowHelper.ThrowArgumentException<Command>(nameof(source))
+                _ when rest.StartsWith("ECONNECT"u8) => Reconnect,
+                _ when rest.StartsWith("OOMSTATE"u8) => RoomState,
+                _ => Unknown(source)
             },
             (byte)'U' => rest switch
             {
-                _ when rest.SequenceEqual("SERNOTICE"u8) => UserNotice,
-                _ when rest.SequenceEqual("SERSTATE"u8) => UserState,
-                _ => ThrowHelper.ThrowArgumentException<Command>(nameof(source))
+                _ when rest.StartsWith("SERNOTICE"u8) => UserNotice,
+                _ when rest.StartsWith("SERSTATE"u8) => UserState,
+                _ => Unknown(source)
             },
             (byte)'0' => rest switch
             {
-                _ when rest.SequenceEqual("01"u8) => RplWelcome,
-                _ when rest.SequenceEqual("02"u8) => RplYourHost,
-                _ when rest.SequenceEqual("03"u8) => RplCreated,
-                _ when rest.SequenceEqual("04"u8) => RplMyInfo,
-                _ => ThrowHelper.ThrowArgumentException<Command>(nameof(source))
+                _ when rest.StartsWith("01"u8) => RplWelcome,
+                _ when rest.StartsWith("02"u8) => RplYourHost,
+                _ when rest.StartsWith("03"u8) => RplCreated,
+                _ when rest.StartsWith("04"u8) => RplMyInfo,
+                _ => Unknown(source)
             },
             (byte)'3' => rest switch
             {
-                _ when rest.SequenceEqual("53"u8) => RplNamReply,
-                _ when rest.SequenceEqual("66"u8) => RplEndOfNames,
-                _ when rest.SequenceEqual("72"u8) => RplMotd,
-                _ when rest.SequenceEqual("75"u8) => RplMotdStart,
-                _ when rest.SequenceEqual("76"u8) => RplEndOfMotd,
-                _ => ThrowHelper.ThrowArgumentException<Command>(nameof(source))
+                _ when rest.StartsWith("53"u8) => RplNamReply,
+                _ when rest.StartsWith("66"u8) => RplEndOfNames,
+                _ when rest.StartsWith("72"u8) => RplMotd,
+                _ when rest.StartsWith("75"u8) => RplMotdStart,
+                _ when rest.StartsWith("76"u8) => RplEndOfMotd,
+                _ => Unknown(source)
             },
-            _ => ThrowHelper.ThrowArgumentException<Command>(nameof(source))
+            _ => Unknown(source)
         };
+    }
+    private static Command Unknown(U8String source)
+    {
+        return new(CommandKey.Unknown, source.SplitFirst(' ').Segment);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static U8String TrimEnd(U8String source, int length)
+    {
+        if (source.Length > length)
+        {
+            if (source[length] == ' ')
+            {
+                return U8Marshal.Slice(source, length + 1);
+            }
+
+            ThrowHelper.ThrowFormatException();
+        }
+
+        return source;
     }
 }
 
 public enum CommandKey
 {
-    Undefined,
+    Unknown,
     Ping,
     Pong,
     /// <summary>

@@ -39,16 +39,16 @@ public readonly record struct Tag
 
         for (var i = 0; i < tagSpan.Length; i++)
         {
-            var tagValue = U8Marshal.Slice(allTags, tagRanges[i]);
+            var tagValue = U8Marshal.Slice(allTags, tagRanges.IndexUnsafe(i));
             var splitOffset = IndexOfSeparator(
                 ref MemoryMarshal.GetReference(U8Marshal.GetSpan(tagValue)));
 
-            tagSpan.IndexUnsafe(i) = splitOffset is <= 16
+            tagSpan.IndexUnsafe(i) = splitOffset < 16
                 ? new(U8Marshal.CreateSplitPair(tagValue, splitOffset, 1))
                 : Parse(tagValue);
         }
 
-        source = U8Marshal.Slice(allTags, tagRanges[tagCount]);
+        source = U8Marshal.Slice(allTags, tagRanges.IndexUnsafe(tagCount));
         return tags;
     }
 
