@@ -23,7 +23,7 @@ public record Prefix(
         var username = default(U8String?);
 
         var (nick, rest) = prefixValue.SplitFirst((byte)'!');
-        if (nick.Length > 0)
+        if (!nick.IsEmpty)
         {
             nickname = nick;
         }

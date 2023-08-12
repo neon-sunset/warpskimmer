@@ -10,13 +10,12 @@ namespace Warpskimmer;
 
 public readonly record struct Tag
 {
-    private static readonly SearchValues<byte> Delimiters = SearchValues.Create(" ;"u8);
-
     private readonly SplitPair TagSplit;
 
     public U8String Key => TagSplit.Segment;
     public U8String Value => TagSplit.Remainder;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Tag(SplitPair tagSplit)
     {
         TagSplit = tagSplit;
@@ -30,25 +29,25 @@ public readonly record struct Tag
             return null;
         }
 
-        // Last range is the remainder of the source
-        var allTags = U8Marshal.Slice(deref, 1);
-        var tagRanges = (stackalloc Range[128]);
-        var tagCount = SplitTags(allTags, tagRanges);
-        var tags = new Tag[tagCount];
-        var tagSpan = tags.AsSpan();
+        (deref, source) = U8Marshal
+            .Slice(deref, 1)
+            .SplitFirst((byte)' ');
 
-        for (var i = 0; i < tagSpan.Length; i++)
+        var split = deref.Split((byte)';');
+        var tags = new Tag[split.Count];
+        var tagsSpan = tags.AsSpan();
+        var i = 0;
+
+        foreach (var tagValue in split)
         {
-            var tagValue = U8Marshal.Slice(allTags, tagRanges.IndexUnsafe(i));
             var splitOffset = IndexOfSeparator(
-                ref MemoryMarshal.GetReference(U8Marshal.AsSpan(tagValue)));
+                ref Unsafe.AsRef(U8Marshal.GetReference(tagValue)));
 
-            tagSpan.IndexUnsafe(i) = splitOffset < 16
+            tagsSpan.IndexUnsafe(i++) = splitOffset < 16
                 ? new(U8Marshal.CreateSplitPair(tagValue, splitOffset, 1))
                 : Parse(tagValue);
         }
 
-        source = U8Marshal.Slice(allTags, tagRanges.IndexUnsafe(tagCount));
         return tags;
     }
 
@@ -78,32 +77,5 @@ public readonly record struct Tag
     public static Tag Parse(U8String value)
     {
         return new Tag(value.SplitFirst((byte)'='));
-    }
-
-    private static int SplitTags(ReadOnlySpan<byte> src, Span<Range> ranges)
-    {
-        var rangeCount = 0;
-        var sourceIndex = 0;
-
-        for (var matchCount = 0; matchCount < ranges.Length; matchCount++)
-        {
-            var separatorIndex = src
-                .SliceUnsafe(sourceIndex)
-                .IndexOfAny(Delimiters);
-            var delimiterOffset = sourceIndex + separatorIndex;
-            if (src.IndexUnsafe(delimiterOffset) is (byte)' ')
-            {
-                ranges.IndexUnsafe(matchCount) = sourceIndex..delimiterOffset;
-                ranges.IndexUnsafe(matchCount + 1) = ++delimiterOffset..src.Length;
-                rangeCount++;
-                break;
-            }
-
-            ranges.IndexUnsafe(matchCount) = sourceIndex..delimiterOffset;
-            sourceIndex += separatorIndex + 1;
-            rangeCount++;
-        }
-
-        return rangeCount;
     }
 }
