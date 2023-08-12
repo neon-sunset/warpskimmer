@@ -30,11 +30,11 @@ public readonly record struct Tag
             return null;
         }
 
-        (var tagsValue, source) = U8Marshal
+        (deref, source) = U8Marshal
             .Slice(deref, 1)
             .SplitFirst((byte)' ');
 
-        var split = tagsValue.Split((byte)';');
+        var split = deref.Split((byte)';');
         var tags = new Tag[split.Count];
         var tagsSpan = tags.AsSpan();
         var i = 0;
@@ -42,7 +42,7 @@ public readonly record struct Tag
         foreach (var tagValue in split)
         {
             var splitOffset = IndexOfSeparator(
-                ref MemoryMarshal.GetReference(U8Marshal.AsSpan(tagValue)));
+                ref Unsafe.AsRef(U8Marshal.GetReference(tagValue)));
 
             tagsSpan.IndexUnsafe(i++) = splitOffset < 16
                 ? new(U8Marshal.CreateSplitPair(tagValue, splitOffset, 1))
