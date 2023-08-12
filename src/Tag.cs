@@ -10,13 +10,12 @@ namespace Warpskimmer;
 
 public readonly record struct Tag
 {
-    private static readonly SearchValues<byte> Delimiters = SearchValues.Create(" ;"u8);
-
     private readonly SplitPair TagSplit;
 
     public U8String Key => TagSplit.Segment;
     public U8String Value => TagSplit.Remainder;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Tag(SplitPair tagSplit)
     {
         TagSplit = tagSplit;
