@@ -10,13 +10,13 @@ namespace Warpskimmer;
 
 public readonly record struct Tag
 {
-    private readonly SplitPair TagSplit;
+    private readonly U8SplitPair TagSplit;
 
     public U8String Key => TagSplit.Segment;
     public U8String Value => TagSplit.Remainder;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Tag(SplitPair tagSplit)
+    public Tag(U8SplitPair tagSplit)
     {
         TagSplit = tagSplit;
     }
@@ -41,7 +41,7 @@ public readonly record struct Tag
         foreach (var tagValue in split)
         {
             var splitOffset = IndexOfSeparator(
-                ref Unsafe.AsRef(U8Marshal.GetReference(tagValue)));
+                ref Unsafe.AsRef(in U8Marshal.GetReference(tagValue)));
 
             tagsSpan.IndexUnsafe(i++) = splitOffset < 16
                 ? new(U8Marshal.CreateSplitPair(tagValue, splitOffset, 1))
