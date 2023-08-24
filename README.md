@@ -30,23 +30,23 @@ In order to build and run the benchmarks, please make sure to
 Time to parse 1000 sample lines from forsen chat stream.
 
 Goal: <333ns (~1.36(6) GB/sec) per 884 byte line (worst case scenario from Forsen chat)
-- [x] x86_64 (Zen 3: ~1.953 GB/sec)
+- [x] x86_64 (Zen 3: ~2.4 GB/sec)
 - [ ] arm64 (Apple M1 Pro: pending)
 
 ```txt
-BenchmarkDotNet=v0.13.5, OS=Windows 11 (10.0.22621.1992/22H2/2022Update/SunValley2)
+BenchmarkDotNet=v0.13.5, OS=Windows 11 (10.0.22621.2134/22H2/2022Update/SunValley2)
 AMD Ryzen 7 5800X, 1 CPU, 16 logical and 8 physical cores
-.NET SDK=8.0.100-rc.1.23403.1
-  [Host]        : .NET 8.0.0 (8.0.23.38103), X64 RyuJIT AVX2
-  DefaultJob    : .NET 8.0.0 (8.0.23.38103), X64 RyuJIT AVX2
-  NativeAOT 8.0 : .NET 8.0.0-rc.1.23381.3, X64 NativeAOT AVX2
+.NET SDK=8.0.100-rc.2.23417.14
+  [Host]        : .NET 8.0.0 (8.0.23.41404), X64 RyuJIT AVX2
+  DefaultJob    : .NET 8.0.0 (8.0.23.41404), X64 RyuJIT AVX2
+  NativeAOT 8.0 : .NET 8.0.0-rc.1.23414.4, X64 NativeAOT AVX2
 ``````
 
 | Method |           Job |       Runtime |  Count |            Mean |         Error |        StdDev |      Gen0 |  Allocated |
 |------- |-------------- |-------------- |------- |----------------:|--------------:|--------------:|----------:|-----------:|
-|  Parse |    DefaultJob |      .NET 8.0 |      1 |        208.3 ns |       4.14 ns |       8.17 ns |    0.0367 |      616 B |
-|  Parse | NativeAOT 8.0 | NativeAOT 8.0 |      1 |        239.2 ns |       1.62 ns |       1.44 ns |    0.0367 |      616 B |
-|  Parse |    DefaultJob |      .NET 8.0 |   1000 |    205,736.1 ns |   1,937.34 ns |   1,717.40 ns |   36.3770 |   611368 B |
-|  Parse | NativeAOT 8.0 | NativeAOT 8.0 |   1000 |    248,170.9 ns |   1,855.09 ns |   1,735.26 ns |   36.1328 |   611368 B |
-|  Parse |    DefaultJob |      .NET 8.0 | 100000 | 20,992,206.5 ns | 135,146.84 ns | 112,853.73 ns | 3593.7500 | 60306100 B |
-|  Parse | NativeAOT 8.0 | NativeAOT 8.0 | 100000 | 25,254,594.6 ns | 100,991.60 ns |  94,467.60 ns | 3593.7500 | 60306100 B |
+|  Parse |    DefaultJob |      .NET 8.0 |      1 |        155.6 ns |       1.39 ns |       1.30 ns |    0.0367 |      616 B |
+|  Parse | NativeAOT 8.0 | NativeAOT 8.0 |      1 |        190.0 ns |       1.78 ns |       1.58 ns |    0.0367 |      616 B |
+|  Parse |    DefaultJob |      .NET 8.0 |   1000 |    168,525.8 ns |   2,078.27 ns |   1,735.45 ns |   36.3770 |   611368 B |
+|  Parse | NativeAOT 8.0 | NativeAOT 8.0 |   1000 |    201,164.3 ns |   1,281.51 ns |   1,198.72 ns |   36.3770 |   611368 B |
+|  Parse |    DefaultJob |      .NET 8.0 | 100000 | 16,494,268.3 ns | 122,753.73 ns | 108,817.98 ns | 3593.7500 | 60306100 B |
+|  Parse | NativeAOT 8.0 | NativeAOT 8.0 | 100000 | 20,883,511.5 ns |  65,064.85 ns |  60,861.70 ns | 3593.7500 | 60306100 B |
