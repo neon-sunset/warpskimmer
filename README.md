@@ -42,14 +42,14 @@ AMD Ryzen 7 5800X, 1 CPU, 16 logical and 8 physical cores
   DefaultJob    : .NET 8.0.0 (8.0.23.41404), X64 RyuJIT AVX2
   NativeAOT 8.0 : .NET 8.0.0-rc.1.23414.4, X64 NativeAOT AVX2
 ``````
-| Method |           Job |       Runtime |  Count |            Mean |         Error |        StdDev |      Gen0 |  Allocated |
-|------- |-------------- |-------------- |------- |----------------:|--------------:|--------------:|----------:|-----------:|
-|  Parse |    DefaultJob |      .NET 8.0 |      1 |        155.6 ns |       1.39 ns |       1.30 ns |    0.0367 |      616 B |
-|  Parse | NativeAOT 8.0 | NativeAOT 8.0 |      1 |        190.0 ns |       1.78 ns |       1.58 ns |    0.0367 |      616 B |
-|  Parse |    DefaultJob |      .NET 8.0 |   1000 |    168,525.8 ns |   2,078.27 ns |   1,735.45 ns |   36.3770 |   611368 B |
-|  Parse | NativeAOT 8.0 | NativeAOT 8.0 |   1000 |    201,164.3 ns |   1,281.51 ns |   1,198.72 ns |   36.3770 |   611368 B |
-|  Parse |    DefaultJob |      .NET 8.0 | 100000 | 16,494,268.3 ns | 122,753.73 ns | 108,817.98 ns | 3593.7500 | 60306100 B |
-|  Parse | NativeAOT 8.0 | NativeAOT 8.0 | 100000 | 20,883,511.5 ns |  65,064.85 ns |  60,861.70 ns | 3593.7500 | 60306100 B |
+| Method |       Runtime |  Count |            Mean |         Error |        StdDev |      Gen0 |  Allocated |
+|------- |-------------- |------- |----------------:|--------------:|--------------:|----------:|-----------:|
+|  Parse |      .NET 8.0 |      1 |        155.6 ns |       1.39 ns |       1.30 ns |    0.0367 |      616 B |
+|  Parse | NativeAOT 8.0 |      1 |        190.0 ns |       1.78 ns |       1.58 ns |    0.0367 |      616 B |
+|  Parse |      .NET 8.0 |   1000 |    168,525.8 ns |   2,078.27 ns |   1,735.45 ns |   36.3770 |   611368 B |
+|  Parse | NativeAOT 8.0 |   1000 |    201,164.3 ns |   1,281.51 ns |   1,198.72 ns |   36.3770 |   611368 B |
+|  Parse |      .NET 8.0 | 100000 | 16,494,268.3 ns | 122,753.73 ns | 108,817.98 ns | 3593.7500 | 60306100 B |
+|  Parse | NativeAOT 8.0 | 100000 | 20,883,511.5 ns |  65,064.85 ns |  60,861.70 ns | 3593.7500 | 60306100 B |
 
 ## ARM64
 ```
@@ -60,11 +60,11 @@ Apple M1 Pro, 1 CPU, 8 logical and 8 physical cores
   DefaultJob    : .NET 8.0.0 (8.0.23.41814), Arm64 RyuJIT AdvSIMD
   NativeAOT 8.0 : .NET 8.0.0-rc.2.23418.14, Arm64 NativeAOT AdvSIMD
 ```
-| Method |           Job |       Runtime |  Count |            Mean |         Error |        StdDev |      Gen0 |  Allocated |
-|------- |-------------- |-------------- |------- |----------------:|--------------:|--------------:|----------:|-----------:|
-|  Parse |    DefaultJob |      .NET 8.0 |      1 |        285.5 ns |       1.40 ns |       1.31 ns |    0.0978 |      616 B |
-|  Parse | NativeAOT 8.0 | NativeAOT 8.0 |      1 |        310.5 ns |       1.08 ns |       1.01 ns |    0.0978 |      616 B |
-|  Parse |    DefaultJob |      .NET 8.0 |   1000 |    280,918.9 ns |   1,491.94 ns |   1,395.56 ns |   97.1680 |   611368 B |
-|  Parse | NativeAOT 8.0 | NativeAOT 8.0 |   1000 |    308,498.1 ns |     608.62 ns |     475.17 ns |   97.1680 |   611368 B |
-|  Parse |    DefaultJob |      .NET 8.0 | 100000 | 27,227,845.2 ns | 136,823.67 ns | 121,290.62 ns | 9593.7500 | 60306111 B |
-|  Parse | NativeAOT 8.0 | NativeAOT 8.0 | 100000 | 29,900,051.0 ns | 117,515.19 ns | 109,923.78 ns | 9593.7500 | 60306100 B |
+| Method |       Runtime |  Count |            Mean |         Error |        StdDev |      Gen0 |  Allocated |
+|------- |-------------- |------- |----------------:|--------------:|--------------:|----------:|-----------:|
+|  Parse |      .NET 8.0 |      1 |        285.5 ns |       1.40 ns |       1.31 ns |    0.0978 |      616 B |
+|  Parse | NativeAOT 8.0 |      1 |        310.5 ns |       1.08 ns |       1.01 ns |    0.0978 |      616 B |
+|  Parse |      .NET 8.0 |   1000 |    280,918.9 ns |   1,491.94 ns |   1,395.56 ns |   97.1680 |   611368 B |
+|  Parse | NativeAOT 8.0 |   1000 |    308,498.1 ns |     608.62 ns |     475.17 ns |   97.1680 |   611368 B |
+|  Parse |      .NET 8.0 | 100000 | 27,227,845.2 ns | 136,823.67 ns | 121,290.62 ns | 9593.7500 | 60306111 B |
+|  Parse | NativeAOT 8.0 | 100000 | 29,900,051.0 ns | 117,515.19 ns | 109,923.78 ns | 9593.7500 | 60306100 B |
