@@ -37,22 +37,22 @@ Goal: <333ns (~1.36(6) GB/sec) per 884 byte line (worst case scenario from Forse
 ```txt
 BenchmarkDotNet=v0.13.5, OS=Windows 11 (10.0.22621.2134/22H2/2022Update/SunValley2)
 AMD Ryzen 7 5800X, 1 CPU, 16 logical and 8 physical cores
-.NET SDK=8.0.100-rc.2.23417.14
-  [Host]        : .NET 8.0.0 (8.0.23.41404), X64 RyuJIT AVX2
-  DefaultJob    : .NET 8.0.0 (8.0.23.41404), X64 RyuJIT AVX2
-  NativeAOT 8.0 : .NET 8.0.0-rc.1.23414.4, X64 NativeAOT AVX2
-``````
-| Method |       Runtime |  Count |            Mean |         Error |        StdDev |      Gen0 |  Allocated |
-|------- |-------------- |------- |----------------:|--------------:|--------------:|----------:|-----------:|
-|  Parse |      .NET 8.0 |      1 |        155.6 ns |       1.39 ns |       1.30 ns |    0.0367 |      616 B |
-|  Parse | NativeAOT 8.0 |      1 |        190.0 ns |       1.78 ns |       1.58 ns |    0.0367 |      616 B |
-|  Parse |      .NET 8.0 |   1000 |    168,525.8 ns |   2,078.27 ns |   1,735.45 ns |   36.3770 |   611368 B |
-|  Parse | NativeAOT 8.0 |   1000 |    201,164.3 ns |   1,281.51 ns |   1,198.72 ns |   36.3770 |   611368 B |
-|  Parse |      .NET 8.0 | 100000 | 16,494,268.3 ns | 122,753.73 ns | 108,817.98 ns | 3593.7500 | 60306100 B |
-|  Parse | NativeAOT 8.0 | 100000 | 20,883,511.5 ns |  65,064.85 ns |  60,861.70 ns | 3593.7500 | 60306100 B |
+.NET SDK=8.0.100-rc.2.23425.8
+  [Host]        : .NET 8.0.0 (8.0.23.42311), X64 RyuJIT AVX2
+  DefaultJob    : .NET 8.0.0 (8.0.23.42311), X64 RyuJIT AVX2
+  NativeAOT 8.0 : .NET 8.0.0-rc.2.23423.11, X64 NativeAOT AVX2
+```
+| Method |       Runtime |  Count |            Mean |        Error |       StdDev |      Gen0 |  Allocated |
+|------- |-------------- |------- |----------------:|-------------:|-------------:|----------:|-----------:|
+|  Parse |      .NET 8.0 |      1 |        152.4 ns |      1.66 ns |      1.39 ns |    0.0367 |      616 B |
+|  Parse | NativeAOT 8.0 |      1 |        183.4 ns |      0.79 ns |      0.70 ns |    0.0367 |      616 B |
+|  Parse |      .NET 8.0 |   1000 |    161,045.4 ns |  2,010.62 ns |  1,880.73 ns |   36.3770 |   611368 B |
+|  Parse | NativeAOT 8.0 |   1000 |    194,503.0 ns |    596.43 ns |    557.90 ns |   36.3770 |   611368 B |
+|  Parse |      .NET 8.0 | 100000 | 16,844,497.7 ns | 72,071.46 ns | 67,415.69 ns | 3593.7500 | 60306100 B |
+|  Parse | NativeAOT 8.0 | 100000 | 20,397,049.4 ns | 77,688.74 ns | 72,670.10 ns | 3593.7500 | 60306100 B |
 
 ## ARM64
-```
+```txt
 BenchmarkDotNet=v0.13.5, OS=macOS 14.0 (23A5312d) [Darwin 23.0.0]
 Apple M1 Pro, 1 CPU, 8 logical and 8 physical cores
 .NET SDK=8.0.100-rc.2.23423.1
