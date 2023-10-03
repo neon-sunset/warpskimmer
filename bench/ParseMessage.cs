@@ -1,12 +1,8 @@
 using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Jobs;
-
-using U8Primitives.InteropServices;
 
 namespace Warpskimmer.Benchmark;
 
 [MemoryDiagnoser]
-[SimpleJob, SimpleJob(RuntimeMoniker.NativeAot80)]
 public class ParseMessage
 {
     private U8String[] Lines = null!;
@@ -17,7 +13,10 @@ public class ParseMessage
     [GlobalSetup]
     public void Setup()
     {
-        Lines = U8Marshal.Create(File.ReadAllBytes("data.txt"))
+        using var file = File.OpenHandle("data.txt");
+
+        Lines = U8String
+            .Read(file)
             .Lines
             .Take(Count)
             .ToArray();
