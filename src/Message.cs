@@ -5,7 +5,7 @@ using U8Primitives.InteropServices;
 namespace Warpskimmer;
 
 public record Message(
-    Tag[]? Tags,
+    TagList? Tags,
     Prefix? Prefix,
     Command Command,
     U8String? Channel,
@@ -15,7 +15,7 @@ public record Message(
     {
         Guard.IsGreaterThan(line.Length, 0);
 
-        var tags = Tag.ParseAll(ref line);
+        var tags = TagList.Parse(ref line);
         var prefix = Prefix.Parse(ref line);
         var command = Command.Parse(ref line);
         var channel = ParseChannel(ref line);

@@ -4,9 +4,7 @@ using U8Primitives.InteropServices;
 
 namespace Warpskimmer;
 
-public readonly record struct Command(
-    CommandKey Key,
-    U8String Value)
+public readonly record struct Command(CommandKey Key, U8String Value)
 {
     private static ReadOnlySpan<byte> PRIVMSG => "PRIVMSG"u8;
     private static ReadOnlySpan<byte> CLEARCHAT => "CLEARCHAT"u8;
@@ -49,7 +47,7 @@ public readonly record struct Command(
         return command;
     }
 
-    public static Command ParseSlow(U8String source)
+    static Command ParseSlow(U8String source)
     {
         var rest = source.AsSpan(1);
         return source[0] switch
