@@ -26,11 +26,11 @@ Host:
 | ---------------------- | ----------------- | ---------- | ------- | ------------- |
 | None                   | `default`         | 5          | 02.28s  | 22.61ms       |
 | None                   | `x86-x64-v2`      | 5          | 02.13s  | 21.35ms       |
-| None                   | `x86-x64-v2-v3`   | 5          | 02.05s  | 20.44ms       |
+| None                   | `x86-x64-v3`      | 5          | 02.05s  | 20.44ms       |
 | None                   | `native`          | 5          | 02.02s  | 20.24ms       |
 | Speed                  | `default`         | 5          | 01.95s  | 19.44ms       |
 | Speed                  | `x86-x64-v2`      | 5          | 01.87s  | 18.79ms       |
-| Speed                  | `x86-x64-v2-v3`   | 5          | 01.68s  | 16.85ms       |
+| Speed                  | `x86-x64-v3`      | 5          | 01.68s  | 16.85ms       |
 | Speed                  | `native`          | 5          | 01.65s  | 16.55ms       |
 
 <Details>
@@ -56,7 +56,7 @@ Elapsed: 00:00:02.1298078 per iteration: 21.3ms
 Elapsed: 00:00:02.1348217 per iteration: 21.35ms
 ```
 
-#### `IlcInstructionSet`: x86-x64-v2-v3
+#### `IlcInstructionSet`: x86-x64-v3
 ```
 Elapsed: 00:00:02.0518181 per iteration: 20.52ms
 Elapsed: 00:00:02.0489025 per iteration: 20.49ms
@@ -94,7 +94,7 @@ Elapsed: 00:00:01.8752040 per iteration: 18.75ms
 Elapsed: 00:00:01.8747006 per iteration: 18.75ms
 ```
 
-#### `IlcInstructionSet`: x86-x64-v2-v3
+#### `IlcInstructionSet`: x86-x64-v3
 ```
 Elapsed: 00:00:01.6846312 per iteration: 16.85ms
 Elapsed: 00:00:01.7029798 per iteration: 17.03ms
