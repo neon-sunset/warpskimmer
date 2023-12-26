@@ -6,22 +6,16 @@ namespace Warpskimmer;
 static class Extensions
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static ReadOnlySpan<T> SliceUnsafe<T>(this ReadOnlySpan<T> span, int index)
+    internal static ref T AsRef<T>(this Span<T> source)
+        where T : struct
     {
-        return MemoryMarshal.CreateReadOnlySpan(
-            ref Unsafe.Add(ref MemoryMarshal.GetReference(span), (nint)(uint)index),
-            span.Length - index);
+        return ref MemoryMarshal.GetReference(source);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static ref T IndexUnsafe<T>(this Span<T> span, int index)
+    internal static ref T Add<T>(this ref T ptr, int offset)
+        where T : struct
     {
-        return ref Unsafe.Add(ref MemoryMarshal.GetReference(span), (nint)(uint)index);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static ref readonly T IndexUnsafe<T>(this ReadOnlySpan<T> span, int index)
-    {
-        return ref Unsafe.Add(ref MemoryMarshal.GetReference(span), (nint)(uint)index);
+        return ref Unsafe.Add(ref ptr, (nint)(uint)offset);
     }
 }

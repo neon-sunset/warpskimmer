@@ -1,1 +1,1 @@
-global using U8Primitives;
+global using U8;

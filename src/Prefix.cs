@@ -1,4 +1,4 @@
-﻿using U8Primitives.InteropServices;
+﻿using U8.InteropServices;
 
 namespace Warpskimmer;
 

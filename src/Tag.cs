@@ -1,10 +1,10 @@
-﻿using System.Buffers;
-using System.Numerics;
+﻿using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.Arm;
-using U8Primitives.InteropServices;
+
+using U8.InteropServices;
+using U8.Primitives;
 
 namespace Warpskimmer;
 
@@ -35,15 +35,16 @@ public readonly record struct Tag
 
         var split = deref.Split((byte)';');
         var tags = new Tag[split.Count];
-        var tagsSpan = tags.AsSpan();
+        var separator = Vector128.Create((byte)'=');
         var i = 0;
 
+        ref var dst = ref tags.AsSpan().AsRef();
         foreach (var tagValue in split)
         {
             var splitOffset = IndexOfSeparator(
-                ref Unsafe.AsRef(in U8Marshal.GetReference(tagValue)));
+                in U8Marshal.GetReference(tagValue), separator);
 
-            tagsSpan.IndexUnsafe(i++) = splitOffset < 16
+            dst.Add(i++) = splitOffset < 16
                 ? new(U8Marshal.CreateSplitPair(tagValue, splitOffset, 1))
                 : Parse(tagValue);
         }
@@ -52,11 +53,9 @@ public readonly record struct Tag
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int IndexOfSeparator(ref byte ptr)
+    public static int IndexOfSeparator(ref readonly byte ptr, Vector128<byte> separator)
     {
-        var eqmask = Vector128.Equals(
-            Vector128.LoadUnsafe(ref ptr),
-            Vector128.Create((byte)'='));
+        var eqmask = Vector128.Equals(Vector128.LoadUnsafe(in ptr), separator);
 
         if (AdvSimd.IsSupported)
         {

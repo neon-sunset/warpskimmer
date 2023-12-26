@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using CommunityToolkit.Diagnostics;
-using U8Primitives.InteropServices;
+using U8.InteropServices;
 
 namespace Warpskimmer;
 
@@ -31,7 +31,7 @@ public readonly record struct Command(
     public static readonly Command RplYourHost =     new(CommandKey.RplYourHost,     "002"u8.ToU8String());
     public static readonly Command RplCreated =      new(CommandKey.RplCreated,      "003"u8.ToU8String());
     public static readonly Command RplMyInfo =       new(CommandKey.RplMyInfo,       "004"u8.ToU8String());
-    public static readonly Command RplNamReply =     new(CommandKey.RplNamReply,   "353"u8.ToU8String());
+    public static readonly Command RplNamReply =     new(CommandKey.RplNamReply,     "353"u8.ToU8String());
     public static readonly Command RplEndOfNames =   new(CommandKey.RplEndOfNames,   "366"u8.ToU8String());
     public static readonly Command RplMotd =         new(CommandKey.RplMotd,         "372"u8.ToU8String());
     public static readonly Command RplMotdStart =    new(CommandKey.RplMotdStart,    "375"u8.ToU8String());
@@ -106,7 +106,7 @@ public readonly record struct Command(
     }
     private static Command Unknown(U8String source)
     {
-        return new(CommandKey.Unknown, source.SplitFirst(' ').Segment);
+        return new(CommandKey.Unknown, source.SplitFirst((byte)' ').Segment);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -114,7 +114,7 @@ public readonly record struct Command(
     {
         if (source.Length > length)
         {
-            if (source[length] == ' ')
+            if (source[length] == (byte)' ')
             {
                 return U8Marshal.Slice(source, length + 1);
             }
