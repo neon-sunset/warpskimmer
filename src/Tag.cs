@@ -33,8 +33,8 @@ public readonly record struct Tag
             .Slice(deref, 1)
             .SplitFirst((byte)' ');
 
-        var split = deref.Split((byte)';');
-        var tags = new Tag[split.Count];
+        var split = deref.Split(";"u8);
+        var tags = new Tag[(uint)split.Count];
         var separator = Vector128.Create((byte)'=');
         var i = 0;
 
@@ -65,11 +65,8 @@ public readonly record struct Tag
                 .ToScalar();
             return BitOperations.TrailingZeroCount(matches) >> 2;
         }
-        else
-        {
-            return BitOperations.TrailingZeroCount(
-                eqmask.ExtractMostSignificantBits());
-        }
+
+        return BitOperations.TrailingZeroCount(eqmask.ExtractMostSignificantBits());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
