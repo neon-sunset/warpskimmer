@@ -45,7 +45,7 @@ public readonly record struct Tag
                 in U8Marshal.GetReference(tagValue), separator);
 
             dst.Add(i++) = splitOffset < 16
-                ? new(U8Marshal.CreateSplitPair(tagValue, splitOffset, 1))
+                ? new(U8Marshal.CreateSplitPairUnsafe(tagValue, splitOffset, 1))
                 : Parse(tagValue);
         }
 

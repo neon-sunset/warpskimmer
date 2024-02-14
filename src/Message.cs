@@ -13,6 +13,7 @@ public record Message(
 {
     public static Message Parse(U8String line)
     {
+        line = line.StripSuffix("\r\n"u8);
         Guard.IsGreaterThan(line.Length, 0);
 
         var tags = Tag.ParseAll(ref line);
