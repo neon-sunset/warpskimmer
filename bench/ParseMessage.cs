@@ -1,5 +1,7 @@
 using BenchmarkDotNet.Attributes;
 
+using U8.IO;
+
 namespace Warpskimmer.Benchmark;
 
 [MemoryDiagnoser]
@@ -13,11 +15,8 @@ public class ParseMessage
     [GlobalSetup]
     public void Setup()
     {
-        using var file = File.OpenHandle("data.txt");
-
-        Lines = U8String
-            .Read(file)
-            .Lines
+        Lines = U8File
+            .ReadLines("data.txt")
             .Take(Count)
             .ToArray();
     }

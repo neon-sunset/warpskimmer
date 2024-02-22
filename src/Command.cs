@@ -11,31 +11,31 @@ public readonly record struct Command(
     private static ReadOnlySpan<byte> PRIVMSG => "PRIVMSG"u8;
     private static ReadOnlySpan<byte> CLEARCHAT => "CLEARCHAT"u8;
 
-    public static readonly Command Ping =            new(CommandKey.Ping,            "PING"u8.ToU8String());
-    public static readonly Command Pong =            new(CommandKey.Pong,            "PONG"u8.ToU8String());
-    public static readonly Command Join =            new(CommandKey.Join,            "JOIN"u8.ToU8String());
-    public static readonly Command Part =            new(CommandKey.Part,            "PART"u8.ToU8String());
-    public static readonly Command Privmsg =         new(CommandKey.Privmsg,         PRIVMSG.ToU8String());
-    public static readonly Command Whisper =         new(CommandKey.Whisper,         "WHISPER"u8.ToU8String());
-    public static readonly Command Clearchat =       new(CommandKey.Clearchat,       CLEARCHAT.ToU8String());
-    public static readonly Command Clearmsg =        new(CommandKey.Clearmsg,        "CLEARMSG"u8.ToU8String());
-    public static readonly Command GlobalUserState = new(CommandKey.GlobalUserState, "GLOBALUSERSTATE"u8.ToU8String());
-    public static readonly Command HostTarget =      new(CommandKey.HostTarget,      "HOSTTARGET"u8.ToU8String());
-    public static readonly Command Notice =          new(CommandKey.Notice,          "NOTICE"u8.ToU8String());
-    public static readonly Command Reconnect =       new(CommandKey.Reconnect,       "RECONNECT"u8.ToU8String());
-    public static readonly Command RoomState =       new(CommandKey.RoomState,       "ROOMSTATE"u8.ToU8String());
-    public static readonly Command UserNotice =      new(CommandKey.UserNotice,      "USERNOTICE"u8.ToU8String());
-    public static readonly Command UserState =       new(CommandKey.UserState,       "USERSTATE"u8.ToU8String());
-    public static readonly Command Capability =      new(CommandKey.Capability,      "CAP"u8.ToU8String());
-    public static readonly Command RplWelcome =      new(CommandKey.RplWelcome,      "001"u8.ToU8String());
-    public static readonly Command RplYourHost =     new(CommandKey.RplYourHost,     "002"u8.ToU8String());
-    public static readonly Command RplCreated =      new(CommandKey.RplCreated,      "003"u8.ToU8String());
-    public static readonly Command RplMyInfo =       new(CommandKey.RplMyInfo,       "004"u8.ToU8String());
-    public static readonly Command RplNamReply =     new(CommandKey.RplNamReply,     "353"u8.ToU8String());
-    public static readonly Command RplEndOfNames =   new(CommandKey.RplEndOfNames,   "366"u8.ToU8String());
-    public static readonly Command RplMotd =         new(CommandKey.RplMotd,         "372"u8.ToU8String());
-    public static readonly Command RplMotdStart =    new(CommandKey.RplMotdStart,    "375"u8.ToU8String());
-    public static readonly Command RplEndOfMotd =    new(CommandKey.RplEndOfMotd,    "376"u8.ToU8String());
+    public static readonly Command Ping =            new(CommandKey.Ping,            u8("PING"));
+    public static readonly Command Pong =            new(CommandKey.Pong,            u8("PONG"));
+    public static readonly Command Join =            new(CommandKey.Join,            u8("JOIN"));
+    public static readonly Command Part =            new(CommandKey.Part,            u8("PART"));
+    public static readonly Command Privmsg =         new(CommandKey.Privmsg,         u8("PRIVMSG"));
+    public static readonly Command Whisper =         new(CommandKey.Whisper,         u8("WHISPER"));
+    public static readonly Command Clearchat =       new(CommandKey.Clearchat,       u8("CLEARCHAT"));
+    public static readonly Command Clearmsg =        new(CommandKey.Clearmsg,        u8("CLEARMSG"));
+    public static readonly Command GlobalUserState = new(CommandKey.GlobalUserState, u8("GLOBALUSERSTATE"));
+    public static readonly Command HostTarget =      new(CommandKey.HostTarget,      u8("HOSTTARGET"));
+    public static readonly Command Notice =          new(CommandKey.Notice,          u8("NOTICE"));
+    public static readonly Command Reconnect =       new(CommandKey.Reconnect,       u8("RECONNECT"));
+    public static readonly Command RoomState =       new(CommandKey.RoomState,       u8("ROOMSTATE"));
+    public static readonly Command UserNotice =      new(CommandKey.UserNotice,      u8("USERNOTICE"));
+    public static readonly Command UserState =       new(CommandKey.UserState,       u8("USERSTATE"));
+    public static readonly Command Capability =      new(CommandKey.Capability,      u8("CAP"));
+    public static readonly Command RplWelcome =      new(CommandKey.RplWelcome,      u8("001"));
+    public static readonly Command RplYourHost =     new(CommandKey.RplYourHost,     u8("002"));
+    public static readonly Command RplCreated =      new(CommandKey.RplCreated,      u8("003"));
+    public static readonly Command RplMyInfo =       new(CommandKey.RplMyInfo,       u8("004"));
+    public static readonly Command RplNamReply =     new(CommandKey.RplNamReply,     u8("353"));
+    public static readonly Command RplEndOfNames =   new(CommandKey.RplEndOfNames,   u8("366"));
+    public static readonly Command RplMotd =         new(CommandKey.RplMotd,         u8("372"));
+    public static readonly Command RplMotdStart =    new(CommandKey.RplMotdStart,    u8("375"));
+    public static readonly Command RplEndOfMotd =    new(CommandKey.RplEndOfMotd,    u8("376"));
 
     public static Command Parse(ref U8String source)
     {
@@ -104,9 +104,20 @@ public readonly record struct Command(
             _ => Unknown(source)
         };
     }
-    private static Command Unknown(U8String source)
+
+    public static Command Unknown(U8String source)
     {
         return new(CommandKey.Unknown, source.SplitFirst((byte)' ').Segment);
+    }
+
+    public bool Equals(Command value)
+    {
+        return Key != CommandKey.Unknown ? Key == value.Key : Value == value.Value;
+    }
+
+    public override int GetHashCode()
+    {
+        return Key != CommandKey.Unknown ? Key.GetHashCode() : Value.GetHashCode();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
