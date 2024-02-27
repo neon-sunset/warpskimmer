@@ -127,7 +127,7 @@ public readonly record struct Command(
         {
             if (source[length] == (byte)' ')
             {
-                return U8Marshal.Slice(source, length + 1);
+                return U8Marshal.SliceUnsafe(source, length + 1);
             }
 
             ThrowHelper.ThrowFormatException();

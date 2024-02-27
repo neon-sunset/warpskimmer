@@ -30,7 +30,7 @@ public readonly record struct Tag
         }
 
         (deref, source) = U8Marshal
-            .Slice(deref, 1)
+            .SliceUnsafe(deref, 1)
             .SplitFirst((byte)' ');
 
         var split = deref.Split(";"u8);

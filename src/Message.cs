@@ -22,7 +22,7 @@ public record Message(
         var channel = ParseChannel(ref line);
         var parameters = line switch
         {
-            [(byte)':', ..] => U8Marshal.Slice(line, 1),
+            [(byte)':', ..] => U8Marshal.SliceUnsafe(line, 1),
             { Length: > 0 } => line,
             _ => default(U8String?)
         };
@@ -36,7 +36,7 @@ public record Message(
         if (deref is [(byte)'#', ..])
         {
             (var channel, line) = U8Marshal
-                .Slice(deref, 1)
+                .SliceUnsafe(deref, 1)
                 .SplitFirst((byte)' ');
 
             return channel;

@@ -16,7 +16,7 @@ public record Prefix(
         }
 
         (prefixValue, source) = U8Marshal
-            .Slice(prefixValue, 1)
+            .SliceUnsafe(prefixValue, 1)
             .SplitFirst((byte)' ');
 
         var nickname = default(U8String?);
